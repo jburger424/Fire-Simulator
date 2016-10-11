@@ -12,9 +12,6 @@ import java.awt.*;
 public class FireSimulator {
     private int rows;
     private int columns;
-    private double windSpeed;
-    private double windDir;
-    private double drynessLevel;
     private Terrain terrain;
 
     /**
@@ -29,9 +26,6 @@ public class FireSimulator {
     public FireSimulator(int c, int r, double wS, double wD, double dL) {
         this.rows = r;
         this.columns = c;
-        this.windSpeed = wS;
-        this.windDir = wD;
-        this.drynessLevel = dL;
         this.terrain = new Terrain(c, r, wD, wS);
         this.terrain.initalizeDryness(dL);
         this.terrain.drawRiver();
@@ -172,7 +166,7 @@ public class FireSimulator {
 
                     double sum = 0;
 
-                    //makes corner cells count less
+                    //makes corner cells count for less
                     for (int i = 1; i < wStats.length; i += 2) {
                         wStats[i] = wStats[i] / 2.0;
                     }

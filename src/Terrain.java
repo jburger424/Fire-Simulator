@@ -65,6 +65,7 @@ public class Terrain {
             for (int r = 0; r < this.rows; r++) {
                 if(StdDraw.mousePressed()) {
                     StdDraw.setPenColor(Color.red);
+                    //while user is pressing mouse set cell under cursor on fire
                     while (StdDraw.mousePressed()) {
                         int mouseX = (int) StdDraw.mouseX();
                         int mouseY = (int) StdDraw.mouseY();
