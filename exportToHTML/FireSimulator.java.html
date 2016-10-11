@@ -1,0 +1,266 @@
+<html>
+<head>
+<title>FireSimulator.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(204,120,50); }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(98,151,85); }
+.s3 { color: rgb(104,151,187); }
+.s4 { color: rgb(128,128,128); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+FireSimulator.java</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">import </span><span class="s1">java.awt.*</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s2">/** 
+ * Created by Jon on 3/31/15. 
+ * Simulates forrest fire by creating a terrain and updating values 
+ * 0 - Not burning 
+ * 1 - Burning 
+ * 2 - empty/burnt 
+ * 3-Water 
+ */</span><span class="s1"> 
+ 
+</span><span class="s0">public class </span><span class="s1">FireSimulator { 
+    </span><span class="s0">private int </span><span class="s1">rows</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private int </span><span class="s1">columns</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">windSpeed</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">windDir</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">drynessLevel</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private </span><span class="s1">Terrain terrain</span><span class="s0">;</span><span class="s1"> 
+ 
+    </span><span class="s2">/** 
+     * Initializes class values and creates terrain with specified values, then initializes dryness and draws a river 
+     * 
+     * @param c  - columns 
+     * @param r  - rows 
+     * @param wS - wind speed 
+     * @param wD - wind direction 
+     * @param dL - dryness level 
+     */</span><span class="s1"> 
+    </span><span class="s0">public </span><span class="s1">FireSimulator(</span><span class="s0">int </span><span class="s1">c</span><span class="s0">, int </span><span class="s1">r</span><span class="s0">, double </span><span class="s1">wS</span><span class="s0">, double </span><span class="s1">wD</span><span class="s0">, double </span><span class="s1">dL) { 
+        </span><span class="s0">this</span><span class="s1">.rows = r</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">this</span><span class="s1">.columns = c</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">this</span><span class="s1">.windSpeed = wS</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">this</span><span class="s1">.windDir = wD</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">this</span><span class="s1">.drynessLevel = dL</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">this</span><span class="s1">.terrain = </span><span class="s0">new </span><span class="s1">Terrain(c</span><span class="s0">, </span><span class="s1">r</span><span class="s0">, </span><span class="s1">wD</span><span class="s0">, </span><span class="s1">wS)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">this</span><span class="s1">.terrain.initalizeDryness(dL)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">this</span><span class="s1">.terrain.drawRiver()</span><span class="s0">;</span><span class="s1"> 
+ 
+    } 
+ 
+    </span><span class="s2">/** 
+     * starts fire in random location, not currently being used because of drawing method 
+     */</span><span class="s1"> 
+    </span><span class="s0">public void </span><span class="s1">startFire() { 
+        </span><span class="s0">int </span><span class="s1">randCol = (</span><span class="s0">int</span><span class="s1">) (Math.random() * </span><span class="s0">this</span><span class="s1">.columns)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">int </span><span class="s1">randRow = (</span><span class="s0">int</span><span class="s1">) (Math.random() * </span><span class="s0">this</span><span class="s1">.rows)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">this</span><span class="s1">.terrain.setTempStatus(randCol</span><span class="s0">, </span><span class="s1">randRow</span><span class="s0">, </span><span class="s3">1</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        terrain.update()</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s2">/*** 
+     *spreads fire by factoring in current cell dryness, wind speed, and the status of the surrounding cells 
+     */</span><span class="s1"> 
+    </span><span class="s0">public void </span><span class="s1">spread() { 
+ 
+        </span><span class="s0">double </span><span class="s1">xSpeed = terrain.getXSpeed()</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">double </span><span class="s1">ySpeed = terrain.getYSpeed()</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">c = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">c &lt; </span><span class="s0">this</span><span class="s1">.columns</span><span class="s0">; </span><span class="s1">c++) { 
+            </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">r = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">r &lt; </span><span class="s0">this</span><span class="s1">.rows</span><span class="s0">; </span><span class="s1">r++) { 
+                </span><span class="s0">int </span><span class="s1">status = terrain.getStatus(c</span><span class="s0">, </span><span class="s1">r)</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">int </span><span class="s1">nStatus</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">int </span><span class="s1">neStatus</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">int </span><span class="s1">eStatus</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">int </span><span class="s1">seStatus</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">int </span><span class="s1">sStatus</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">int </span><span class="s1">wStatus</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">int </span><span class="s1">swStatus</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">int </span><span class="s1">nwStatus</span><span class="s0">;</span><span class="s1"> 
+ 
+                </span><span class="s0">if </span><span class="s1">(r &gt; </span><span class="s0">this</span><span class="s1">.rows - </span><span class="s3">2</span><span class="s1">) nStatus = </span><span class="s3">0</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">else </span><span class="s1">nStatus = terrain.getStatus(c</span><span class="s0">, </span><span class="s1">r + </span><span class="s3">1</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">if </span><span class="s1">(r &lt; </span><span class="s3">1</span><span class="s1">) sStatus = </span><span class="s3">0</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">else </span><span class="s1">sStatus = terrain.getStatus(c</span><span class="s0">, </span><span class="s1">r - </span><span class="s3">1</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">if </span><span class="s1">(c &gt; </span><span class="s0">this</span><span class="s1">.columns - </span><span class="s3">2</span><span class="s1">) eStatus = </span><span class="s3">0</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">else </span><span class="s1">eStatus = terrain.getStatus(c + </span><span class="s3">1</span><span class="s0">, </span><span class="s1">r)</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">if </span><span class="s1">(c &lt; </span><span class="s3">1</span><span class="s1">) wStatus = </span><span class="s3">0</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">else </span><span class="s1">wStatus = terrain.getStatus(c - </span><span class="s3">1</span><span class="s0">, </span><span class="s1">r)</span><span class="s0">;</span><span class="s1"> 
+ 
+                </span><span class="s0">if </span><span class="s1">(r &gt; </span><span class="s0">this</span><span class="s1">.rows - </span><span class="s3">2 </span><span class="s1">|| c &lt; </span><span class="s3">1</span><span class="s1">) nwStatus = </span><span class="s3">0</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">else </span><span class="s1">nwStatus = terrain.getStatus(c - </span><span class="s3">1</span><span class="s0">, </span><span class="s1">r + </span><span class="s3">1</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">if </span><span class="s1">(r &gt; </span><span class="s0">this</span><span class="s1">.rows - </span><span class="s3">2 </span><span class="s1">|| c &gt; </span><span class="s0">this</span><span class="s1">.columns - </span><span class="s3">2</span><span class="s1">) neStatus = </span><span class="s3">0</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">else </span><span class="s1">neStatus = terrain.getStatus(c + </span><span class="s3">1</span><span class="s0">, </span><span class="s1">r + </span><span class="s3">1</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">if </span><span class="s1">(r &lt; </span><span class="s3">1 </span><span class="s1">|| c &gt; </span><span class="s0">this</span><span class="s1">.columns - </span><span class="s3">2</span><span class="s1">) seStatus = </span><span class="s3">0</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">else </span><span class="s1">seStatus = terrain.getStatus(c + </span><span class="s3">1</span><span class="s0">, </span><span class="s1">r - </span><span class="s3">1</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">if </span><span class="s1">(r &lt; </span><span class="s3">1 </span><span class="s1">|| c &lt; </span><span class="s3">1</span><span class="s1">) swStatus = </span><span class="s3">0</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">else </span><span class="s1">swStatus = terrain.getStatus(c - </span><span class="s3">1</span><span class="s0">, </span><span class="s1">r - </span><span class="s3">1</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+ 
+                </span><span class="s0">if </span><span class="s1">(status == </span><span class="s3">2</span><span class="s1">) terrain.setTempStatus(c</span><span class="s0">, </span><span class="s1">r</span><span class="s0">, </span><span class="s3">2</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">if </span><span class="s1">(status == </span><span class="s3">1</span><span class="s1">) terrain.setTempStatus(c</span><span class="s0">, </span><span class="s1">r</span><span class="s0">, </span><span class="s3">2</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s4">//checks that at least one surrounding cell is on fire</span><span class="s1"> 
+                </span><span class="s0">if </span><span class="s1">(status == </span><span class="s3">0 </span><span class="s1">&amp;&amp; (nStatus == </span><span class="s3">1 </span><span class="s1">|| eStatus == </span><span class="s3">1 </span><span class="s1">|| sStatus == </span><span class="s3">1 </span><span class="s1">|| wStatus == </span><span class="s3">1 </span><span class="s1">|| 
+                        nwStatus == </span><span class="s3">1 </span><span class="s1">|| neStatus == </span><span class="s3">1 </span><span class="s1">|| seStatus == </span><span class="s3">1 </span><span class="s1">|| swStatus == </span><span class="s3">1</span><span class="s1">)) { 
+ 
+                    </span><span class="s0">double</span><span class="s1">[] wStats = {nStatus</span><span class="s0">, </span><span class="s1">neStatus</span><span class="s0">, </span><span class="s1">eStatus</span><span class="s0">, </span><span class="s1">seStatus</span><span class="s0">, </span><span class="s1">sStatus</span><span class="s0">, </span><span class="s1">swStatus</span><span class="s0">, </span><span class="s1">wStatus</span><span class="s0">, </span><span class="s1">nwStatus}</span><span class="s0">;</span><span class="s1"> 
+                    </span><span class="s4">//makes sure that values that are not on fire do not affect sum</span><span class="s1"> 
+                    </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">i &lt; wStats.length</span><span class="s0">; </span><span class="s1">i++) { 
+                        </span><span class="s0">if </span><span class="s1">(wStats[i] != </span><span class="s3">1</span><span class="s1">) { 
+                            wStats[i] = </span><span class="s3">0</span><span class="s0">;</span><span class="s1"> 
+                        } 
+ 
+                    } 
+ 
+                    </span><span class="s0">int </span><span class="s1">speedFactor = </span><span class="s3">1</span><span class="s0">;</span><span class="s1"> 
+                    </span><span class="s4">//adds wind speed to one side and subtracts from the other</span><span class="s1"> 
+                    </span><span class="s0">if </span><span class="s1">(xSpeed &gt; </span><span class="s3">0</span><span class="s1">) { 
+                        </span><span class="s0">int</span><span class="s1">[] toAdd = {</span><span class="s3">5</span><span class="s0">, </span><span class="s3">6</span><span class="s0">, </span><span class="s3">7</span><span class="s1">}</span><span class="s0">;</span><span class="s1"> 
+                        </span><span class="s0">int</span><span class="s1">[] toSubtract = {</span><span class="s3">1</span><span class="s0">, </span><span class="s3">2</span><span class="s0">, </span><span class="s3">3</span><span class="s1">}</span><span class="s0">;</span><span class="s1"> 
+                        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">i &lt; toAdd.length</span><span class="s0">; </span><span class="s1">i++) { 
+                            </span><span class="s0">int </span><span class="s1">a = toAdd[i]</span><span class="s0">;</span><span class="s1"> 
+                            </span><span class="s0">int </span><span class="s1">s = toSubtract[i]</span><span class="s0">;</span><span class="s1"> 
+ 
+                            </span><span class="s0">if </span><span class="s1">(wStats[a] == </span><span class="s3">1</span><span class="s1">) { 
+                                wStats[a] += speedFactor * xSpeed</span><span class="s0">;</span><span class="s1"> 
+                            } 
+                            </span><span class="s0">if </span><span class="s1">(wStats[s] == </span><span class="s3">1</span><span class="s1">) { 
+                                wStats[s] -= speedFactor * xSpeed</span><span class="s0">;</span><span class="s1"> 
+                            } 
+ 
+                        } 
+                    } 
+ 
+                    </span><span class="s0">if </span><span class="s1">(xSpeed &lt; </span><span class="s3">0</span><span class="s1">) { 
+                        </span><span class="s0">int</span><span class="s1">[] toAdd = {</span><span class="s3">1</span><span class="s0">, </span><span class="s3">2</span><span class="s0">, </span><span class="s3">3</span><span class="s1">}</span><span class="s0">;</span><span class="s1"> 
+                        </span><span class="s0">int</span><span class="s1">[] toSubtract = {</span><span class="s3">5</span><span class="s0">, </span><span class="s3">6</span><span class="s0">, </span><span class="s3">7</span><span class="s1">}</span><span class="s0">;</span><span class="s1"> 
+                        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">i &lt; toAdd.length</span><span class="s0">; </span><span class="s1">i++) { 
+                            </span><span class="s0">int </span><span class="s1">a = toAdd[i]</span><span class="s0">;</span><span class="s1"> 
+                            </span><span class="s0">int </span><span class="s1">s = toSubtract[i]</span><span class="s0">;</span><span class="s1"> 
+ 
+                            </span><span class="s0">if </span><span class="s1">(wStats[a] == </span><span class="s3">1</span><span class="s1">) { 
+                                wStats[a] += speedFactor * xSpeed</span><span class="s0">;</span><span class="s1"> 
+                            } 
+                            </span><span class="s0">if </span><span class="s1">(wStats[s] == </span><span class="s3">1</span><span class="s1">) { 
+                                wStats[s] -= speedFactor * xSpeed</span><span class="s0">;</span><span class="s1"> 
+                            } 
+ 
+                        } 
+                    } 
+ 
+                    </span><span class="s0">if </span><span class="s1">(ySpeed &gt; </span><span class="s3">0</span><span class="s1">) { 
+                        </span><span class="s0">int</span><span class="s1">[] toAdd = {</span><span class="s3">5</span><span class="s0">, </span><span class="s3">4</span><span class="s0">, </span><span class="s3">3</span><span class="s1">}</span><span class="s0">;</span><span class="s1"> 
+                        </span><span class="s0">int</span><span class="s1">[] toSubtract = {</span><span class="s3">7</span><span class="s0">, </span><span class="s3">0</span><span class="s0">, </span><span class="s3">1</span><span class="s1">}</span><span class="s0">;</span><span class="s1"> 
+                        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">i &lt; toAdd.length</span><span class="s0">; </span><span class="s1">i++) { 
+                            </span><span class="s0">int </span><span class="s1">a = toAdd[i]</span><span class="s0">;</span><span class="s1"> 
+                            </span><span class="s0">int </span><span class="s1">s = toSubtract[i]</span><span class="s0">;</span><span class="s1"> 
+ 
+                            </span><span class="s0">if </span><span class="s1">(wStats[a] == </span><span class="s3">1</span><span class="s1">) { 
+                                wStats[a] += speedFactor * ySpeed</span><span class="s0">;</span><span class="s1"> 
+                            } 
+                            </span><span class="s0">if </span><span class="s1">(wStats[s] == </span><span class="s3">1</span><span class="s1">) { 
+                                wStats[s] -= speedFactor * ySpeed</span><span class="s0">;</span><span class="s1"> 
+                            } 
+ 
+                        } 
+                    } 
+ 
+                    </span><span class="s0">if </span><span class="s1">(ySpeed &lt; </span><span class="s3">0</span><span class="s1">) { 
+                        </span><span class="s0">int</span><span class="s1">[] toAdd = {</span><span class="s3">7</span><span class="s0">, </span><span class="s3">0</span><span class="s0">, </span><span class="s3">1</span><span class="s1">}</span><span class="s0">;</span><span class="s1"> 
+                        </span><span class="s0">int</span><span class="s1">[] toSubtract = {</span><span class="s3">5</span><span class="s0">, </span><span class="s3">4</span><span class="s0">, </span><span class="s3">3</span><span class="s1">}</span><span class="s0">;</span><span class="s1"> 
+                        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">i &lt; toAdd.length</span><span class="s0">; </span><span class="s1">i++) { 
+                            </span><span class="s0">int </span><span class="s1">a = toAdd[i]</span><span class="s0">;</span><span class="s1"> 
+                            </span><span class="s0">int </span><span class="s1">s = toSubtract[i]</span><span class="s0">;</span><span class="s1"> 
+ 
+                            </span><span class="s0">if </span><span class="s1">(wStats[a] == </span><span class="s3">1</span><span class="s1">) { 
+                                wStats[a] += speedFactor * ySpeed</span><span class="s0">;</span><span class="s1"> 
+                            } 
+                            </span><span class="s0">if </span><span class="s1">(wStats[s] == </span><span class="s3">1</span><span class="s1">) { 
+                                wStats[s] -= speedFactor * ySpeed</span><span class="s0">;</span><span class="s1"> 
+                            } 
+ 
+                        } 
+                    } 
+ 
+                    </span><span class="s0">double </span><span class="s1">sum = </span><span class="s3">0</span><span class="s0">;</span><span class="s1"> 
+ 
+                    </span><span class="s4">//makes corner cells count less</span><span class="s1"> 
+                    </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s3">1</span><span class="s0">; </span><span class="s1">i &lt; wStats.length</span><span class="s0">; </span><span class="s1">i += </span><span class="s3">2</span><span class="s1">) { 
+                        wStats[i] = wStats[i] / </span><span class="s3">2.0</span><span class="s0">;</span><span class="s1"> 
+                    } 
+ 
+                    </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">i &lt; wStats.length</span><span class="s0">; </span><span class="s1">i++) { 
+                        sum += wStats[i]</span><span class="s0">;</span><span class="s1"> 
+                    } 
+ 
+                    </span><span class="s0">int </span><span class="s1">tempStatus = </span><span class="s3">0</span><span class="s0">;</span><span class="s1"> 
+                    </span><span class="s0">double </span><span class="s1">tempDryness</span><span class="s0">;</span><span class="s1"> 
+                    </span><span class="s0">double </span><span class="s1">currentDry = terrain.getTempDry(c</span><span class="s0">, </span><span class="s1">r)</span><span class="s0">;</span><span class="s1"> 
+                    tempDryness = currentDry * (</span><span class="s3">1 </span><span class="s1">+ (sum))</span><span class="s0">;</span><span class="s1"> 
+ 
+                    </span><span class="s0">if </span><span class="s1">(tempDryness &gt; </span><span class="s3">10</span><span class="s1">) { 
+                        tempDryness = </span><span class="s3">10</span><span class="s0">;</span><span class="s1"> 
+                    } 
+                    </span><span class="s0">double </span><span class="s1">prob = (sum / </span><span class="s3">4</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                    prob += (prob) * (tempDryness / </span><span class="s3">12</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+ 
+ 
+                    </span><span class="s0">if </span><span class="s1">(Math.random() &lt; prob) { 
+                        tempStatus = </span><span class="s3">1</span><span class="s0">;</span><span class="s1"> 
+                    } 
+ 
+ 
+                    terrain.setTempStatus(c</span><span class="s0">, </span><span class="s1">r</span><span class="s0">, </span><span class="s1">tempStatus)</span><span class="s0">;</span><span class="s1"> 
+                    </span><span class="s0">if </span><span class="s1">(tempStatus == </span><span class="s3">0</span><span class="s1">) { 
+                        terrain.setTempDryness(c</span><span class="s0">, </span><span class="s1">r</span><span class="s0">, </span><span class="s1">tempDryness)</span><span class="s0">;</span><span class="s1"> 
+                    } 
+ 
+                } 
+ 
+ 
+            } 
+ 
+ 
+        } 
+        </span><span class="s4">//setting all to temp grids</span><span class="s1"> 
+ 
+        terrain.update()</span><span class="s0">;</span><span class="s1"> 
+ 
+    } 
+ 
+    </span><span class="s2">/*** 
+     * calculates number of burnt cells and divides by total number cells excluding water, then multiplies by 100 to conver to percentage 
+     * @return - percent of original forest burnt 
+     */</span><span class="s1"> 
+    </span><span class="s0">public double </span><span class="s1">getPercentBurned() { 
+        </span><span class="s0">int </span><span class="s1">numBurned = </span><span class="s3">0</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">int </span><span class="s1">numWater = </span><span class="s3">0</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">c = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">c &lt; </span><span class="s0">this</span><span class="s1">.columns</span><span class="s0">; </span><span class="s1">c++) { 
+            </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">r = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">r &lt; </span><span class="s0">this</span><span class="s1">.rows</span><span class="s0">; </span><span class="s1">r++) { 
+                </span><span class="s0">if </span><span class="s1">(terrain.getStatus(c</span><span class="s0">, </span><span class="s1">r) == </span><span class="s3">2</span><span class="s1">) { 
+                    numBurned += </span><span class="s3">1</span><span class="s0">;</span><span class="s1"> 
+                } 
+                </span><span class="s0">if </span><span class="s1">(terrain.getStatus(c</span><span class="s0">, </span><span class="s1">r) == </span><span class="s3">3</span><span class="s1">) { 
+                    numWater += </span><span class="s3">1</span><span class="s0">;</span><span class="s1"> 
+                } 
+            } 
+        } 
+        </span><span class="s0">double </span><span class="s1">percent = </span><span class="s3">100 </span><span class="s1">* ((</span><span class="s0">double</span><span class="s1">) numBurned / ((</span><span class="s0">double</span><span class="s1">) (</span><span class="s0">this</span><span class="s1">.columns * </span><span class="s0">this</span><span class="s1">.rows) - (</span><span class="s0">double</span><span class="s1">) numWater))</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">return </span><span class="s1">percent</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+ 
+} 
+ 
+</span></pre>
+</body>
+</html>

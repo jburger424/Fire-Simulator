@@ -1,0 +1,303 @@
+<html>
+<head>
+<title>Terrain.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(204,120,50); }
+.s1 { color: rgb(169,183,198); }
+.s2 { color: rgb(98,151,85); }
+.s3 { color: rgb(104,151,187); }
+.s4 { color: rgb(128,128,128); }
+</style>
+</head>
+<BODY BGCOLOR="#2b2b2b">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+Terrain.java</FONT>
+</center></TD></TR></TABLE>
+<pre>
+
+<span class="s0">import </span><span class="s1">java.awt.*</span><span class="s0">;</span><span class="s1"> 
+ 
+</span><span class="s2">/*** 
+ * Created by Jon on 3/31/15. 
+ * Creates terrain with dryness and rivers and continually updates self 
+ * 0 - Not burning 
+ * 1 - Burning 
+ * 2 - empty/burnt 
+ * 3-Water 
+ */</span><span class="s1"> 
+</span><span class="s0">public class </span><span class="s1">Terrain { 
+ 
+    </span><span class="s0">private int </span><span class="s1">rows</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private int </span><span class="s1">columns</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private int</span><span class="s1">[][] grid</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private double</span><span class="s1">[][] dryGrid</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private int</span><span class="s1">[][] tempGrid</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private double</span><span class="s1">[][] tempDryGrid</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">windDirection</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">windSpeed</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">xSpeed</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private double </span><span class="s1">ySpeed</span><span class="s0">;</span><span class="s1"> 
+    </span><span class="s0">private int </span><span class="s1">n</span><span class="s0">;</span><span class="s1"> 
+ 
+    </span><span class="s2">/*** 
+     * Initializes terrain with given values, converts wind direction from degrees to radians, calculates x and y speed based of wind direction and speed 
+     * Sets canvas size and scale 
+     * @param c - columns 
+     * @param r - rows 
+     * @param wD - wind direction 
+     * @param wS - wind speed 
+     */</span><span class="s1"> 
+    </span><span class="s0">public </span><span class="s1">Terrain(</span><span class="s0">int </span><span class="s1">c</span><span class="s0">, int </span><span class="s1">r</span><span class="s0">, double </span><span class="s1">wD</span><span class="s0">, double </span><span class="s1">wS) { 
+        </span><span class="s0">this</span><span class="s1">.rows = r</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">this</span><span class="s1">.columns = c</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">this</span><span class="s1">.grid = </span><span class="s0">new int</span><span class="s1">[c][r]</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">this</span><span class="s1">.tempGrid = </span><span class="s0">new int</span><span class="s1">[c][r]</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">this</span><span class="s1">.dryGrid = </span><span class="s0">new double</span><span class="s1">[c][r]</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">this</span><span class="s1">.tempDryGrid = </span><span class="s0">new double</span><span class="s1">[c][r]</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">this</span><span class="s1">.windDirection = wD*(Math.PI/</span><span class="s3">180</span><span class="s1">)</span><span class="s0">; </span><span class="s4">//converting degrees to radians</span><span class="s1"> 
+        </span><span class="s0">this</span><span class="s1">.windSpeed = wS</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">this</span><span class="s1">.xSpeed = windSpeed*Math.cos(windDirection)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">this</span><span class="s1">.ySpeed = windSpeed*Math.sin(windDirection)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">this</span><span class="s1">.n = </span><span class="s3">0</span><span class="s0">;</span><span class="s1"> 
+        StdDraw.setCanvasSize(</span><span class="s3">500</span><span class="s0">,</span><span class="s3">500</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        StdDraw.setXscale(</span><span class="s3">0</span><span class="s0">, this</span><span class="s1">.columns)</span><span class="s0">;</span><span class="s1"> 
+        StdDraw.setYscale(</span><span class="s3">0</span><span class="s0">, this</span><span class="s1">.rows)</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s2">/*** 
+     * Updates cell colors based on temp status and updates real status 
+     * If cell is burt a margin is applied to prevent visible grid lines 
+     * If cell is still forest will set color to a shade of green based on dryness level 
+     */</span><span class="s1"> 
+    </span><span class="s0">public void </span><span class="s1">update(){ 
+        </span><span class="s0">this</span><span class="s1">.n += </span><span class="s3">1</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">if</span><span class="s1">(</span><span class="s0">this</span><span class="s1">.n == </span><span class="s3">1</span><span class="s1">){ 
+            StdDraw.setPenColor(</span><span class="s3">10</span><span class="s0">,</span><span class="s3">110</span><span class="s0">,</span><span class="s3">0</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">double</span><span class="s1">[] xVals = {</span><span class="s3">0</span><span class="s0">,</span><span class="s3">0</span><span class="s0">,this</span><span class="s1">.columns</span><span class="s0">,this</span><span class="s1">.columns}</span><span class="s0">; double</span><span class="s1">[] yVals = {</span><span class="s3">0</span><span class="s0">,this</span><span class="s1">.rows</span><span class="s0">,this</span><span class="s1">.rows</span><span class="s0">,</span><span class="s3">0</span><span class="s1">}</span><span class="s0">;</span><span class="s1"> 
+            StdDraw.filledPolygon(xVals</span><span class="s0">,</span><span class="s1">yVals)</span><span class="s0">;</span><span class="s1"> 
+        } 
+ 
+        </span><span class="s0">double </span><span class="s1">xMargin = </span><span class="s3">0</span><span class="s0">; double </span><span class="s1">yMargin = </span><span class="s3">0</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">c = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">c &lt; </span><span class="s0">this</span><span class="s1">.columns</span><span class="s0">; </span><span class="s1">c++) { 
+            </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">r = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">r &lt; </span><span class="s0">this</span><span class="s1">.rows</span><span class="s0">; </span><span class="s1">r++) { 
+                </span><span class="s0">if</span><span class="s1">(StdDraw.mousePressed()) { 
+                    StdDraw.setPenColor(Color.red)</span><span class="s0">;</span><span class="s1"> 
+                    </span><span class="s0">while </span><span class="s1">(StdDraw.mousePressed()) { 
+                        </span><span class="s0">int </span><span class="s1">mouseX = (</span><span class="s0">int</span><span class="s1">) StdDraw.mouseX()</span><span class="s0">;</span><span class="s1"> 
+                        </span><span class="s0">int </span><span class="s1">mouseY = (</span><span class="s0">int</span><span class="s1">) StdDraw.mouseY()</span><span class="s0">;</span><span class="s1"> 
+                        </span><span class="s0">if </span><span class="s1">(mouseX &gt;= </span><span class="s3">0 </span><span class="s1">&amp;&amp; mouseX &lt; </span><span class="s0">this</span><span class="s1">.columns &amp;&amp; mouseY &gt;= </span><span class="s3">0 </span><span class="s1">&amp;&amp; mouseY &lt; </span><span class="s0">this</span><span class="s1">.rows) { 
+                            </span><span class="s0">if</span><span class="s1">(getStatus(mouseX</span><span class="s0">, </span><span class="s1">mouseY) == </span><span class="s3">0</span><span class="s1">) { 
+                                setTempStatus(mouseX</span><span class="s0">, </span><span class="s1">mouseY</span><span class="s0">, </span><span class="s3">1</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+ 
+                                </span><span class="s0">double</span><span class="s1">[] xVals = {mouseX</span><span class="s0">,</span><span class="s1">mouseX</span><span class="s0">,</span><span class="s1">mouseX+</span><span class="s3">.99</span><span class="s0">,</span><span class="s1">mouseX+</span><span class="s3">.99</span><span class="s1">}</span><span class="s0">;</span><span class="s1"> 
+                                </span><span class="s0">double</span><span class="s1">[] yVals = {mouseY</span><span class="s0">,</span><span class="s1">mouseY+</span><span class="s3">1</span><span class="s0">,</span><span class="s1">mouseY+</span><span class="s3">1</span><span class="s0">,</span><span class="s1">mouseY}</span><span class="s0">;</span><span class="s1"> 
+                                StdDraw.filledPolygon(xVals</span><span class="s0">,</span><span class="s1">yVals)</span><span class="s0">;</span><span class="s1"> 
+                            } 
+                        } 
+                    } 
+                } 
+                </span><span class="s0">if</span><span class="s1">((</span><span class="s0">this</span><span class="s1">.grid[c][r] != </span><span class="s0">this</span><span class="s1">.tempGrid[c][r] || </span><span class="s0">this</span><span class="s1">.dryGrid[c][r] != </span><span class="s0">this</span><span class="s1">.tempDryGrid[c][r])){ 
+                    </span><span class="s0">int </span><span class="s1">tempStatus = </span><span class="s0">this</span><span class="s1">.tempGrid[c][r]</span><span class="s0">;</span><span class="s1"> 
+                    </span><span class="s0">this</span><span class="s1">.grid[c][r] = tempStatus</span><span class="s0">;</span><span class="s1"> 
+                    </span><span class="s0">if</span><span class="s1">(tempStatus == </span><span class="s3">2</span><span class="s1">){ 
+                        xMargin = -(</span><span class="s3">1</span><span class="s1">/(</span><span class="s0">double</span><span class="s1">)</span><span class="s0">this</span><span class="s1">.columns)*</span><span class="s3">3</span><span class="s0">;</span><span class="s1"> 
+                        yMargin = -(</span><span class="s3">1</span><span class="s1">/(</span><span class="s0">double</span><span class="s1">)</span><span class="s0">this</span><span class="s1">.rows)*</span><span class="s3">3</span><span class="s0">;</span><span class="s1"> 
+                    } 
+ 
+                    </span><span class="s0">double</span><span class="s1">[] xVals = {(c+xMargin)</span><span class="s0">,</span><span class="s1">(c+xMargin)</span><span class="s0">,</span><span class="s1">(c+</span><span class="s3">1</span><span class="s1">-xMargin)</span><span class="s0">,</span><span class="s1">(c+</span><span class="s3">1</span><span class="s1">-xMargin)}</span><span class="s0">;</span><span class="s1"> 
+                    </span><span class="s0">double</span><span class="s1">[] yVals = {(r+yMargin)</span><span class="s0">,</span><span class="s1">(r+</span><span class="s3">1</span><span class="s1">-yMargin)</span><span class="s0">,</span><span class="s1">(r+</span><span class="s3">1</span><span class="s1">-yMargin)</span><span class="s0">,</span><span class="s1">(r+yMargin)}</span><span class="s0">;</span><span class="s1"> 
+ 
+                    xMargin = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">yMargin = </span><span class="s3">0</span><span class="s0">;</span><span class="s1"> 
+ 
+                    </span><span class="s0">if</span><span class="s1">(</span><span class="s0">this</span><span class="s1">.grid[c][r] == </span><span class="s3">0</span><span class="s1">){ 
+                        </span><span class="s0">double </span><span class="s1">tempDryness = </span><span class="s0">this</span><span class="s1">.tempDryGrid[c][r]</span><span class="s0">;</span><span class="s1"> 
+                        </span><span class="s0">this</span><span class="s1">.dryGrid[c][r] = tempDryness</span><span class="s0">;</span><span class="s1"> 
+                        </span><span class="s0">int </span><span class="s1">newR = </span><span class="s3">10 </span><span class="s1">+ (</span><span class="s0">int</span><span class="s1">)(((</span><span class="s0">double</span><span class="s1">)tempDryness/</span><span class="s3">10</span><span class="s1">)*</span><span class="s3">200</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                        </span><span class="s0">int </span><span class="s1">newG = </span><span class="s3">110 </span><span class="s1">+ (</span><span class="s0">int</span><span class="s1">)(((</span><span class="s0">double</span><span class="s1">)tempDryness/</span><span class="s3">10</span><span class="s1">)*</span><span class="s3">120</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                        </span><span class="s0">int </span><span class="s1">newB = (</span><span class="s0">int</span><span class="s1">)(((</span><span class="s0">double</span><span class="s1">)tempDryness/</span><span class="s3">10</span><span class="s1">)*</span><span class="s3">130</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                        StdDraw.setPenColor(newR</span><span class="s0">,</span><span class="s1">newG</span><span class="s0">,</span><span class="s1">newB)</span><span class="s0">;</span><span class="s1"> 
+                    } 
+                    </span><span class="s0">else if</span><span class="s1">(</span><span class="s0">this</span><span class="s1">.grid[c][r] == </span><span class="s3">1</span><span class="s1">){ 
+                        StdDraw.setPenColor(Color.RED)</span><span class="s0">;</span><span class="s1"> 
+                    } 
+                    </span><span class="s0">else if</span><span class="s1">(</span><span class="s0">this</span><span class="s1">.grid[c][r] == </span><span class="s3">3</span><span class="s1">){ 
+                        StdDraw.setPenColor(Color.BLUE)</span><span class="s0">;</span><span class="s1"> 
+                    } 
+                    </span><span class="s0">else</span><span class="s1">{ 
+                        StdDraw.setPenColor(Color.BLACK)</span><span class="s0">;</span><span class="s1"> 
+                    } 
+                    StdDraw.filledPolygon(xVals</span><span class="s0">,</span><span class="s1">yVals)</span><span class="s0">;</span><span class="s1"> 
+ 
+                } 
+ 
+ 
+            } 
+ 
+        } 
+        </span><span class="s0">return;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s2">/*** 
+     * Draws a river 
+     * Chooses random starting position on the x axis 
+     * Will find random points and connect with water to give appearance of random river 
+     */</span><span class="s1"> 
+    </span><span class="s0">public void </span><span class="s1">drawRiver() { 
+        </span><span class="s0">int </span><span class="s1">xStart = (</span><span class="s0">int</span><span class="s1">)((Math.random()*(</span><span class="s0">double</span><span class="s1">)columns/</span><span class="s3">2</span><span class="s1">)+(</span><span class="s0">double</span><span class="s1">)columns/</span><span class="s3">4</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">int </span><span class="s1">numPoints = </span><span class="s3">20</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">int</span><span class="s1">[][] points = </span><span class="s0">new int</span><span class="s1">[numPoints][</span><span class="s3">2</span><span class="s1">]</span><span class="s0">;</span><span class="s1"> 
+        points[</span><span class="s3">0</span><span class="s1">] = </span><span class="s0">new int</span><span class="s1">[]{xStart</span><span class="s0">, </span><span class="s3">0</span><span class="s1">}</span><span class="s0">;</span><span class="s1"> 
+ 
+        </span><span class="s4">//generating array of random points</span><span class="s1"> 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s3">1</span><span class="s0">; </span><span class="s1">i &lt; points.length</span><span class="s0">; </span><span class="s1">i++) { 
+            </span><span class="s0">int </span><span class="s1">dX = </span><span class="s3">3</span><span class="s1">-(</span><span class="s0">int</span><span class="s1">)(Math.random()*</span><span class="s3">8</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s4">//System.out.println(dX);</span><span class="s1"> 
+            </span><span class="s0">int </span><span class="s1">dY = </span><span class="s3">1</span><span class="s1">+(</span><span class="s0">int</span><span class="s1">)Math.ceil((</span><span class="s0">double</span><span class="s1">)rows/ (</span><span class="s0">double</span><span class="s1">)points.length)</span><span class="s0">;</span><span class="s1"> 
+            points[i][</span><span class="s3">0</span><span class="s1">] = points[i-</span><span class="s3">1</span><span class="s1">][</span><span class="s3">0</span><span class="s1">] + dX</span><span class="s0">;</span><span class="s1"> 
+            points[i][</span><span class="s3">1</span><span class="s1">] = points[i-</span><span class="s3">1</span><span class="s1">][</span><span class="s3">1</span><span class="s1">] + dY</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">int </span><span class="s1">x = points[i][</span><span class="s3">0</span><span class="s1">]</span><span class="s0">; int </span><span class="s1">y = points[i][</span><span class="s3">1</span><span class="s1">]</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">if</span><span class="s1">(x &gt;= </span><span class="s3">0 </span><span class="s1">&amp;&amp; x &lt; columns &amp;&amp; y&gt;=</span><span class="s3">0 </span><span class="s1">&amp;&amp; y &lt; rows) setTempStatus(x</span><span class="s0">,</span><span class="s1">y</span><span class="s0">,</span><span class="s3">3</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+        } 
+        </span><span class="s4">//connecting the dots</span><span class="s1"> 
+        </span><span class="s0">int </span><span class="s1">thickness = </span><span class="s3">2</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">i = </span><span class="s3">1</span><span class="s0">; </span><span class="s1">i &lt; points.length</span><span class="s0">; </span><span class="s1">i++) { 
+            </span><span class="s0">int </span><span class="s1">x1 = points[i-</span><span class="s3">1</span><span class="s1">][</span><span class="s3">0</span><span class="s1">]</span><span class="s0">; int </span><span class="s1">y1 = points[i-</span><span class="s3">1</span><span class="s1">][</span><span class="s3">1</span><span class="s1">]</span><span class="s0">; int </span><span class="s1">x2 = points[i][</span><span class="s3">0</span><span class="s1">]</span><span class="s0">; int </span><span class="s1">y2 = points[i][</span><span class="s3">1</span><span class="s1">]</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">double </span><span class="s1">slope = (</span><span class="s0">double</span><span class="s1">)(y2-y1)/(</span><span class="s0">double</span><span class="s1">)(x2-x1)</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">double </span><span class="s1">b = y1-(slope*(</span><span class="s0">double</span><span class="s1">)x1)</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">int </span><span class="s1">xMin</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">int </span><span class="s1">xRange = Math.abs(x2-x1)</span><span class="s0">; int </span><span class="s1">yRange = Math.abs(y2-y1)</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">if</span><span class="s1">(x1 &lt; x2) xMin = x1</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">else </span><span class="s1">xMin = x2</span><span class="s0">;</span><span class="s1"> 
+            </span><span class="s0">if</span><span class="s1">(x1 == x2){ 
+                </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">j = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">j &lt; yRange</span><span class="s0">; </span><span class="s1">j++) { 
+                    </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">k = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">k &lt; thickness</span><span class="s0">; </span><span class="s1">k++) { 
+                        </span><span class="s0">int </span><span class="s1">y = j+y1</span><span class="s0">;</span><span class="s1"> 
+                        setTempStatus(x1+k</span><span class="s0">,</span><span class="s1">y</span><span class="s0">,</span><span class="s3">3</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                    } 
+                } 
+            } 
+            </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">j = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">j &lt; xRange*</span><span class="s3">10</span><span class="s0">; </span><span class="s1">j++) { 
+                </span><span class="s0">double </span><span class="s1">tempX = ((</span><span class="s0">double</span><span class="s1">)j/</span><span class="s3">10</span><span class="s1">)+xMin</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">int </span><span class="s1">y = (</span><span class="s0">int</span><span class="s1">)Math.round(slope*tempX+b)</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">int </span><span class="s1">x = (</span><span class="s0">int</span><span class="s1">)Math.round(tempX)</span><span class="s0">;</span><span class="s1"> 
+                </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">k = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">k &lt; thickness</span><span class="s0">; </span><span class="s1">k++) { 
+                    </span><span class="s0">if</span><span class="s1">(x &gt;= </span><span class="s3">0 </span><span class="s1">&amp;&amp; x &lt; columns &amp;&amp; y &gt;= </span><span class="s3">0 </span><span class="s1">&amp;&amp; y &lt; rows) setTempStatus(x+k</span><span class="s0">,</span><span class="s1">y</span><span class="s0">,</span><span class="s3">3</span><span class="s1">)</span><span class="s0">;</span><span class="s1"> 
+                } 
+ 
+            } 
+ 
+        } 
+ 
+        update()</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s2">/*** 
+     * initialized dryness based on given dryness level 
+     * Will randomly select point on graph and increase the dryness of cells in a randomly chosen radius 
+     * The higher the dryness level the more dry 
+     * @param drynessLevel - between 0 and 1 
+     */</span><span class="s1"> 
+    </span><span class="s0">public void </span><span class="s1">initalizeDryness(</span><span class="s0">double </span><span class="s1">drynessLevel) { 
+        drynessLevel = drynessLevel/</span><span class="s3">5</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">int </span><span class="s1">radius</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">c = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">c &lt; </span><span class="s0">this</span><span class="s1">.columns</span><span class="s0">; </span><span class="s1">c++) { 
+            </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">r = </span><span class="s3">0</span><span class="s0">; </span><span class="s1">r &lt; </span><span class="s0">this</span><span class="s1">.rows</span><span class="s0">; </span><span class="s1">r++) { 
+                </span><span class="s0">if </span><span class="s1">(Math.random() &lt; drynessLevel) { 
+                    radius = (</span><span class="s0">int</span><span class="s1">) (Math.random() * ((</span><span class="s0">double</span><span class="s1">)</span><span class="s0">this</span><span class="s1">.rows/</span><span class="s3">5</span><span class="s1">))+</span><span class="s3">7</span><span class="s0">;</span><span class="s1"> 
+                    </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">dX = -(radius)</span><span class="s0">; </span><span class="s1">dX &lt;= radius</span><span class="s0">; </span><span class="s1">dX++) { 
+                        </span><span class="s0">for </span><span class="s1">(</span><span class="s0">int </span><span class="s1">dY = -(radius - Math.abs(dX))</span><span class="s0">; </span><span class="s1">dY &lt;= (radius - Math.abs(dX))</span><span class="s0">; </span><span class="s1">dY++) { 
+                            </span><span class="s0">int </span><span class="s1">newC = c + dX</span><span class="s0">;</span><span class="s1"> 
+                            </span><span class="s0">int </span><span class="s1">newR = r + dY</span><span class="s0">;</span><span class="s1"> 
+                            </span><span class="s0">if </span><span class="s1">(newC &gt;= </span><span class="s3">0 </span><span class="s1">&amp;&amp; newC &lt; </span><span class="s0">this</span><span class="s1">.columns &amp;&amp; newR &gt;= </span><span class="s3">0 </span><span class="s1">&amp;&amp; newR &lt; </span><span class="s0">this</span><span class="s1">.rows) { 
+                                </span><span class="s0">double </span><span class="s1">currentDry = getTempDry(newC</span><span class="s0">, </span><span class="s1">newR)</span><span class="s0">;</span><span class="s1"> 
+                                </span><span class="s0">int </span><span class="s1">distance = Math.abs(dX)+Math.abs(dY)</span><span class="s0">;</span><span class="s1"> 
+                                </span><span class="s0">double </span><span class="s1">tempDry = (Math.random()*drynessLevel*</span><span class="s3">10</span><span class="s1">*((</span><span class="s0">double</span><span class="s1">)(radius-distance)/(</span><span class="s0">double</span><span class="s1">)radius))</span><span class="s0">;</span><span class="s1"> 
+                                tempDry += currentDry</span><span class="s0">;</span><span class="s1"> 
+                                </span><span class="s0">if </span><span class="s1">(tempDry &gt; </span><span class="s3">10</span><span class="s1">) { 
+                                    tempDry = </span><span class="s3">10</span><span class="s0">;</span><span class="s1"> 
+                                } 
+                                </span><span class="s0">if </span><span class="s1">(tempDry &lt; </span><span class="s3">0 </span><span class="s1">){ 
+                                    tempDry = </span><span class="s3">0</span><span class="s0">;</span><span class="s1"> 
+                                } 
+                                setTempDryness((c + dX)</span><span class="s0">, </span><span class="s1">(r + dY)</span><span class="s0">, </span><span class="s1">tempDry)</span><span class="s0">;</span><span class="s1"> 
+                            } 
+                        } 
+ 
+                    } 
+ 
+                } 
+            } 
+        } 
+    } 
+ 
+    </span><span class="s2">/*** 
+     * Changes temporary cell status 
+     * @param x - column value 
+     * @param y - row value 
+     * @param status - status you want to set given cell 
+     */</span><span class="s1"> 
+    </span><span class="s0">public void </span><span class="s1">setTempStatus(</span><span class="s0">int </span><span class="s1">x</span><span class="s0">, int </span><span class="s1">y</span><span class="s0">, int </span><span class="s1">status){ 
+        </span><span class="s4">//checking to avoid out of bounds</span><span class="s1"> 
+        </span><span class="s0">if</span><span class="s1">(x &gt;= </span><span class="s3">0 </span><span class="s1">&amp;&amp; x &lt; columns &amp;&amp; y &gt;= </span><span class="s3">0 </span><span class="s1">&amp;&amp; y &lt; rows) </span><span class="s0">this</span><span class="s1">.tempGrid[x][y] = status</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">return;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s2">/*** 
+     * Changes temp cell dryness level 
+     * @param x - column value 
+     * @param y - row value 
+     * @param dryness - dryness value 
+     */</span><span class="s1"> 
+    </span><span class="s0">public void </span><span class="s1">setTempDryness(</span><span class="s0">int </span><span class="s1">x</span><span class="s0">, int </span><span class="s1">y</span><span class="s0">, double </span><span class="s1">dryness){ 
+        </span><span class="s0">this</span><span class="s1">.tempDryGrid[x][y] = dryness</span><span class="s0">;</span><span class="s1"> 
+        </span><span class="s0">return;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s2">/*** 
+     * returns x speed between 0 and 1 
+     * @return 
+     */</span><span class="s1"> 
+ 
+    </span><span class="s0">public double </span><span class="s1">getXSpeed(){ 
+        </span><span class="s0">return this</span><span class="s1">.xSpeed</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s2">/*** 
+     * returns y speed between 0 and 1 
+     * @return 
+     */</span><span class="s1"> 
+    </span><span class="s0">public double </span><span class="s1">getYSpeed(){ 
+        </span><span class="s0">return this</span><span class="s1">.ySpeed</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s2">/*** 
+     * returns cell status 
+     * @param x - column value 
+     * @param y - row value 
+     * @return 
+     * 0 - Not burning 
+     * 1 - Burning 
+     * 2 - empty/burnt 
+     * 3-Water 
+     */</span><span class="s1"> 
+    </span><span class="s0">public int </span><span class="s1">getStatus(</span><span class="s0">int </span><span class="s1">x</span><span class="s0">, int </span><span class="s1">y){ 
+        </span><span class="s0">return this</span><span class="s1">.grid[x][y]</span><span class="s0">;</span><span class="s1"> 
+    } 
+ 
+    </span><span class="s2">/*** 
+     * returns cell dryness level 
+     * @param x - column value 
+     * @param y - row value 
+     * @return 
+     */</span><span class="s1"> 
+    </span><span class="s0">public double </span><span class="s1">getTempDry(</span><span class="s0">int </span><span class="s1">x</span><span class="s0">, int </span><span class="s1">y){ 
+        </span><span class="s0">return this</span><span class="s1">.tempDryGrid[x][y]</span><span class="s0">;</span><span class="s1"> 
+    } 
+} 
+</span></pre>
+</body>
+</html>
