@@ -1,9 +1,12 @@
-## Description
+##Description
 
 This is a simple fire click-and-drag fire simulator built in Java using the [StdDraw](http://introcs.cs.princeton.edu/15inout) class for graphics. Simulates how a fire spreads from specific locations on a 40 x 40 grid. 
 
-### [JavaDocs](https://jburger424.github.io/Fire-Simulator/JavaDocs/)
-## Getting Started
+###[JavaDocs](https://jburger424.github.io/Fire-Simulator/JavaDocs/)
+###[Demo Video](https://www.youtube.com/watch?v=651FKN7AdTQ)
+
+##Getting Started
+
 
 
 ###Installation
