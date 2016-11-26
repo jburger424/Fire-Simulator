@@ -45,7 +45,6 @@ public class Terrain {
         StdDraw.setCanvasSize(500,500);
         StdDraw.setXscale(0, this.columns);
         StdDraw.setYscale(0, this.rows);
-        System.out.println("Columns: "+c);
     }
 
     /***
