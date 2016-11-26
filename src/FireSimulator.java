@@ -30,6 +30,7 @@ public class FireSimulator {
         this.terrain.initalizeDryness(dL);
         this.terrain.drawRiver();
 
+
     }
 
     /**

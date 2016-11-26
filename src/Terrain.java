@@ -45,6 +45,7 @@ public class Terrain {
         StdDraw.setCanvasSize(500,500);
         StdDraw.setXscale(0, this.columns);
         StdDraw.setYscale(0, this.rows);
+        System.out.println("Columns: "+c);
     }
 
     /***
@@ -55,6 +56,7 @@ public class Terrain {
     public void update(){
         this.n += 1;
         if(this.n == 1){
+            //setting color green
             StdDraw.setPenColor(10,110,0);
             double[] xVals = {0,0,this.columns,this.columns}; double[] yVals = {0,this.rows,this.rows,0};
             StdDraw.filledPolygon(xVals,yVals);
@@ -84,8 +86,11 @@ public class Terrain {
                     int tempStatus = this.tempGrid[c][r];
                     this.grid[c][r] = tempStatus;
                     if(tempStatus == 2){
-                        xMargin = -(1/(double)this.columns)*3;
-                        yMargin = -(1/(double)this.rows)*3;
+                        //xMargin = -(1/(double)this.columns)*3;
+                        //yMargin = -(1/(double)this.rows)*3;
+                        //just trying something
+                        xMargin = 0;
+                        yMargin = 0;
                     }
 
                     double[] xVals = {(c+xMargin),(c+xMargin),(c+1-xMargin),(c+1-xMargin)};

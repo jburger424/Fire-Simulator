@@ -16,7 +16,8 @@ public class initializer {
                 try {
                     int tempSize = Integer.parseInt(args[i+1]);
                     if(tempSize < 4) throw new NumberFormatException();
-                    columns = rows = tempSize;
+                    columns = tempSize;
+                    rows = tempSize;
                     i++;
                 } catch (NumberFormatException e) {
                     System.err.println("Size must be integer >= 4");
